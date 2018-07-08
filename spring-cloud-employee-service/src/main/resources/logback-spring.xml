@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 	<include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-	<springProperty scope="context" name="springAppName" source="spring.application.name"/>
-	<!-- <springProperty scope="context" name="LOG_PATH" source="logging.path"/>
-	<property name="LOG_FILE" value="${LOG_PATH}/${springAppName}"/> -->
-	<property name="LOG_FILE" value="/home/spring-cloud/logs/spring-cloud-employee-service"/>
-
+	<springProperty scope="context" name="springAppName" source="spring.application.name" default="spring-cloud-employee-service"/>
+	<property name="LOG_FILE" value="${LOG_PATH:-/home/spring-cloud/logs}/spring-cloud-employee-service"/>
 	<!-- You can override this to have a custom pattern -->
 	<property name="CONSOLE_LOG_PATTERN"
 			  value="%d{yyyy-MMM-dd HH:mm:ss a} [${springAppName},trace=%X{X-B3-TraceId:-},span=%X{X-B3-SpanId:-},parent=%X{X-B3-ParentSpanId:-},export=%X{X-Span-Export:-}] [%t] %-5level %logger{36} - %msg%n"/>
@@ -21,26 +18,27 @@
 			<charset>utf8</charset>
 		</encoder>
 	</appender>
-
-	<!-- Appender to log to file -->​
-	<appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${LOG_FILE:-}.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}.log</fileNamePattern>
-			<maxHistory>7</maxHistory>
-		</rollingPolicy>
-		<encoder>
-			<pattern>${CONSOLE_LOG_PATTERN}</pattern>
-			<charset>utf8</charset>
-		</encoder>
-	</appender>
+	<springProfile name="default,dev,stage">
+		<!-- Appender to log to file -->​
+		<appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+			<file>${LOG_FILE}.log</file>
+			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+				<fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}.log</fileNamePattern>
+				<maxHistory>7</maxHistory>
+			</rollingPolicy>
+			<encoder>
+				<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+				<charset>utf8</charset>
+			</encoder>
+		</appender>
+	</springProfile>
 	​
 	<!-- Appender to log to file in a JSON format -->
 	<springProfile name="prod">
 	<appender name="Logstash" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${LOG_FILE:-}.json</file>
+		<file>${LOG_FILE}.json</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOG_FILE}.json.%d{yyyy-MM-dd}.gz</fileNamePattern>
+			<fileNamePattern>${LOG_FILE}.json.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
 			<maxHistory>7</maxHistory>
 		</rollingPolicy>
 		<encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
@@ -56,7 +54,7 @@
 						"trace": "%X{X-B3-TraceId:-}",
 						"span": "%X{X-B3-SpanId:-}",
 						"parent": "%X{X-B3-ParentSpanId:-}",
-						"exportable": "%X{X-Span-Export:-}",
+						"export": "%X{X-Span-Export:-}",
 						"pid": "${PID:-}",
 						"thread": "%thread",
 						"class": "%logger{40}",
@@ -71,7 +69,9 @@
 	 <!-- Log everything in custom package -->
     <logger name="com.poc" level="DEBUG" additivity="false">
       <appender-ref ref="Console" />
-      <appender-ref ref="RollingFile" />
+      <springProfile name="default,dev,stage">
+      	<appender-ref ref="RollingFile" />
+      </springProfile>
       <springProfile name="prod">
 	  	<appender-ref ref="Logstash"/>
 	  </springProfile>
@@ -79,7 +79,9 @@
     <!-- Log everything in Spring Boot -->
     <logger name="org.springframework.boot" level="DEBUG" additivity="false">
       <appender-ref ref="Console" />
-      <appender-ref ref="RollingFile" />
+      <springProfile name="default,dev,stage">
+      	<appender-ref ref="RollingFile" />
+      </springProfile>
       <springProfile name="prod">
 	  	<appender-ref ref="Logstash"/>
 	 </springProfile>
@@ -87,17 +89,20 @@
     <!-- Log everything in Spring Core -->
     <logger name="org.springframework.core" level="DEBUG" additivity="false">
       <appender-ref ref="Console" />
-      <appender-ref ref="RollingFile" />
+      <springProfile name="default,dev,stage">
+      	<appender-ref ref="RollingFile" />
+      </springProfile>
       <springProfile name="prod">
 	  	<appender-ref ref="Logstash"/>
 	 </springProfile>
     </logger>​
 	<root level="INFO">
 		<appender-ref ref="Console"/>
-		<!-- uncomment this to have also JSON logs -->
-		<springProfile name="prod">
+		<springProfile name="dev,stage">
+      		<appender-ref ref="RollingFile" />
+      	</springProfile>
+      	<springProfile name="prod">
 			<appender-ref ref="Logstash"/>
 		</springProfile>
-		<!--<appender-ref ref="RollingFile"/>-->
 	</root>
 </configuration>
