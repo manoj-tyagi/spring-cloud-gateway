@@ -24,7 +24,8 @@ public class SwaggerConfig {
 				.select().apis(RequestHandlerSelectors.basePackage(BASE_PACKAGE))
 				.paths(PathSelectors.ant(BASE_URL))
 				.build()
-				.apiInfo(apiInfo());
+				.apiInfo(apiInfo())
+				.pathProvider(new BasePathAwareRelativePathProvider("/"));
 	}
 
 	private ApiInfo apiInfo() {

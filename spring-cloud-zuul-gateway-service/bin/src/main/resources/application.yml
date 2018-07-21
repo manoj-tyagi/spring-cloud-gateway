@@ -1,7 +1,4 @@
 --- 
-spring:
-  application:
-    name: spring-cloud-zuul-gateway-service
 ribbon: 
   eureka: 
     enabled: false
@@ -11,19 +8,14 @@ server:
        enabled: false
        key-store: file:/home/SSL/abc.jks
        key-store-password: xyz
-       key-password: xyz   
+       key-password: xyz       
+      
 zuul:   
   prefix: /gateway/api
   routes: 
-    employee: 
+    employee-service: 
       path: /employee/**
       url: "http://localhost:8081/employee"
-    department:  
+    department-service:  
       path: /department/**
       url: "http://localhost:8081/employee"
-      
-error:
-  path: /error
-
-logging:
-  path: /home/spring-cloud/logs

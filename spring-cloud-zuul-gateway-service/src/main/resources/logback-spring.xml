@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+	<springProperty scope="context" name="springAppName" source="spring.application.name" default="spring-cloud-zuul-gateway-service"/>
+	<property name="LOG_FILE" value="${LOG_PATH:-/home/spring-cloud/logs}/spring-cloud-zuul-gateway-service"/>
+	<!-- You can override this to have a custom pattern -->
+	<property name="CONSOLE_LOG_PATTERN"
+			  value="%d{yyyy-MMM-dd HH:mm:ss a} [${springAppName:-spring-cloud-zuul-gateway-service},trace=%X{X-B3-TraceId:-},span=%X{X-B3-SpanId:-},parent=%X{X-B3-ParentSpanId:-},export=%X{X-Span-Export:-}] [%t] %-5level %logger{36} - %msg%n"/>
+
+	<!-- Appender to log to console -->
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+		</encoder>
+	</appender>
+	<!-- Appender to log to file -->​
+	<appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_FILE}.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<maxHistory>7</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+			<charset>utf8</charset>
+		</encoder>
+	</appender>
+	​
+	<!-- Appender to log to file in a JSON format -->
+	<springProfile name="prod">
+	<appender name="LOGSTASH" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_FILE}.json</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_FILE}.json.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+			<maxHistory>7</maxHistory>
+		</rollingPolicy>
+		<encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+			<providers>
+				<timestamp>
+					<timeZone>UTC</timeZone>
+				</timestamp>
+				<pattern>
+					<pattern>
+						{
+						"severity": "%level",
+						"service": "${springAppName:-}",
+						"trace": "%X{X-B3-TraceId:-}",
+						"span": "%X{X-B3-SpanId:-}",
+						"parent": "%X{X-B3-ParentSpanId:-}",
+						"export": "%X{X-Span-Export:-}",
+						"pid": "${PID:-}",
+						"thread": "%thread",
+						"class": "%logger{40}",
+						"rest": "%message"
+						}
+					</pattern>
+				</pattern>
+			</providers>
+		</encoder>
+	</appender>
+	</springProfile>
+	 <!-- Log everything in custom package -->
+    <logger name="com.poc.gateway" level="DEBUG" additivity="false">
+      <appender-ref ref="CONSOLE" />
+      <springProfile name="!prod">
+      	<appender-ref ref="ROLLING_FILE" />
+      </springProfile>
+      <springProfile name="prod">
+	  	<appender-ref ref="LOGSTASH"/>
+	  </springProfile>
+    </logger>
+    <!-- Log everything in Spring Boot -->
+    <logger name="org.springframework.boot" level="DEBUG" additivity="false">
+      <appender-ref ref="CONSOLE" />
+      <springProfile name="!prod">
+      	<appender-ref ref="ROLLING_FILE" />
+      </springProfile>
+      <springProfile name="prod">
+	  	<appender-ref ref="LOGSTASH"/>
+	 </springProfile>
+    </logger>
+    <!-- Log everything in Spring Core -->
+    <logger name="org.springframework.core" level="DEBUG" additivity="false">
+      <appender-ref ref="CONSOLE" />
+       <springProfile name="!prod">
+      	<appender-ref ref="ROLLING_FILE" />
+      </springProfile>
+      <springProfile name="prod">
+	  	<appender-ref ref="LOGSTASH"/>
+	 </springProfile>
+    </logger>​
+	<root level="INFO">
+		<appender-ref ref="CONSOLE"/>
+		 <springProfile name="!prod">
+      		<appender-ref ref="ROLLING_FILE" />
+      	</springProfile>
+      	<springProfile name="prod">
+			<appender-ref ref="LOGSTASH"/>
+		</springProfile>
+	</root>
+</configuration>

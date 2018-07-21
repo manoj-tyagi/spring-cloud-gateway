@@ -5,7 +5,7 @@
 	<property name="LOG_FILE" value="${LOG_PATH:-/home/spring-cloud/logs}/spring-cloud-gateway-service"/>
 	<!-- You can override this to have a custom pattern -->
 	<property name="CONSOLE_LOG_PATTERN"
-			  value="%d{yyyy-MMM-dd HH:mm:ss a} [${springAppName},trace=%X{X-B3-TraceId:-},span=%X{X-B3-SpanId:-},parent=%X{X-B3-ParentSpanId:-},export=%X{X-Span-Export:-}] [%t] %-5level %logger{36} - %msg%n"/>
+			  value="%d{yyyy-MMM-dd HH:mm:ss a} [${springAppName:-spring-cloud-gateway-service},trace=%X{X-B3-TraceId:-},span=%X{X-B3-SpanId:-},parent=%X{X-B3-ParentSpanId:-},export=%X{X-Span-Export:-}] [%t] %-5level %logger{36} - %msg%n"/>
 
 	<!-- Appender to log to console -->
 	<appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
