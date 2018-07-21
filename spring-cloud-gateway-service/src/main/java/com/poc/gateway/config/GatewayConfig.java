@@ -1,4 +1,4 @@
-package com.example.demogateway.config;
+package com.poc.gateway.config;
 
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;

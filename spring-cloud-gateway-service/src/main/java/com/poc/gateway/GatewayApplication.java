@@ -1,4 +1,4 @@
-package com.example.demogateway;
+package com.poc.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @SpringBootApplication
-public class DemogatewayApplication {
+public class GatewayApplication {
 
 	@RequestMapping("/hystrixfallback")
 	public String hystrixfallback() {
@@ -62,6 +62,6 @@ public class DemogatewayApplication {
 	}*/
 	
 	public static void main(String[] args) {
-		SpringApplication.run(DemogatewayApplication.class, args);
+		SpringApplication.run(GatewayApplication.class, args);
 	}
 }

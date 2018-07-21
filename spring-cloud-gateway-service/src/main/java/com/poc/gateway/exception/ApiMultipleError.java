@@ -1,4 +1,4 @@
-package com.example.demogateway.exception;
+package com.poc.gateway.exception;
 
 public class ApiMultipleError extends ApiSubError {
 	private String message;
